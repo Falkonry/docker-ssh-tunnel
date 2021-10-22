@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    function: data-fixer
+    party: falkonry
+  name: kubecost-tunnel
+  namespace: '{{.Values.namespace}}'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kubecost-tunnel
+  template:
+    metadata:
+      labels:
+        function: kubecost
+        name: kubecost-tunnel
+        party: falkonry
+    spec:
+      containers:
+        - command:
+            - sh
+            - /connector/Run-fixer.sh
+          env:
+            - name: LOCAL_PORT
+              value: 9090
+            - name: REMOTE_PORT
+              value: 9090
+            - name: REMOTE_SERVER_IP
+              value: 127.0.0.1
+            - name: SSH_BASTION_HOST
+              value: 3.101.89.165
+            - name: SSH_USER
+              value: dbtunnel
+            - name: SSH_PORT
+              value: 22
+          image: quay.io/falkonry/docker-ssh-tunnel:latest
+          imagePullPolicy: Always
+          name: kubecost-tunnel
+          ports:
+            - containerPort: 9090
+              protocol: TCP
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 1Gi
+          volumeMounts:
+            - mountPath: "/ssh_key/id_rsa"
+              name: ssh-key
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: ssh-key
+          secret:
+            secretName: ssh-key
