@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    function: data-fixer
+    function: kubecost-tunnel
     party: falkonry
   name: kubecost-tunnel
   namespace: '{{.Values.namespace}}'
