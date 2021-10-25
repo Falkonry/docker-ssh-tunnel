@@ -5,7 +5,7 @@ metadata:
     function: kubecost-tunnel
     party: falkonry
   name: kubecost-tunnel
-  namespace: '{{.Values.namespace}}'
+  namespace: falkonry-services #'{{.Values.namespace}}'
 spec:
   replicas: 1
   selector:
@@ -21,20 +21,22 @@ spec:
       containers:
         - command:
             - sh
-            - /connector/Run-fixer.sh
+            - -c
+            - tail -f /dev/null
+            # - /run.sh
           env:
             - name: LOCAL_PORT
-              value: 9090
+              value: "9090"
             - name: REMOTE_PORT
-              value: 9090
+              value: "9090"
             - name: REMOTE_SERVER_IP
-              value: 127.0.0.1
+              value: "127.0.0.1"
             - name: SSH_BASTION_HOST
-              value: 3.101.89.165
+              value: "3.101.89.165"
             - name: SSH_USER
-              value: dbtunnel
+              value: ec2-user
             - name: SSH_PORT
-              value: 22
+              value: "22"
           image: quay.io/falkonry/docker-ssh-tunnel:latest
           imagePullPolicy: Always
           name: kubecost-tunnel
@@ -47,11 +49,12 @@ spec:
             requests:
               memory: 1Gi
           volumeMounts:
-            - mountPath: "/ssh_key/id_rsa"
+            - mountPath: "/ssh_key"
               name: ssh-key
               readOnly: true
       restartPolicy: Always
       volumes:
         - name: ssh-key
           secret:
-            secretName: ssh-key
+            secretName: kubecost-tunnel-secret
+            defaultMode: 0600
