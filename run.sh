@@ -10,6 +10,10 @@ if [ -z ${DEPLOYMENT+x} ]; then
     DEPLOYMENT="cost-analyzer"
 fi
 
+if  [ -z ${REMOTE_PORT+x} ] ; then
+    FWD_PORT="9090"
+fi
+
 if  [ -z ${FWD_PORT+x} ] ; then
     FWD_PORT="9091"
 fi
@@ -21,4 +25,4 @@ fi
 
 echo "starting kube proxy"
 
-nohup kubectl port-forward -n $NAMESPACE deploy/$DEPLOYMENT $FWD_PORT:9090 &! 
+nohup kubectl port-forward -n $NAMESPACE deploy/$DEPLOYMENT $FWD_PORT:$REMOTE_PORT --address='0.0.0.0' &! 

@@ -1,0 +1,17 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: kubecost-tunnel-svc
+  namespace: '{{.Values.namespace}}'
+  labels:
+    function: kubecost-tunnel
+    party: falkonry
+spec:
+  ports:
+    - name: kubecost-tunnel-web
+      port: 9091
+      targetPort: 9091
+      protocol: TCP
+  selector:
+    name: kubecost-tunnel
+  type: ClusterIP

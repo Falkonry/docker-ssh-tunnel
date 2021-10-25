@@ -5,7 +5,7 @@ metadata:
     function: kubecost-tunnel
     party: falkonry
   name: kubecost-tunnel
-  namespace: falkonry-services #'{{.Values.namespace}}'
+  namespace: '{{.Values.namespace}}'
 spec:
   replicas: 1
   selector:
@@ -21,27 +21,21 @@ spec:
       containers:
         - command:
             - sh
-            - -c
-            - tail -f /dev/null
-            # - /run.sh
+            - /run.sh
           env:
-            - name: LOCAL_PORT
-              value: "9090"
+            - name: NAMESPACE
+              value: "falkonry"
+            - name: DEPLOYMENT
+              value: "cost-analyzer"
+            - name: FWD_PORT
+              value: "9091"
             - name: REMOTE_PORT
-              value: "9090"
-            - name: REMOTE_SERVER_IP
-              value: "127.0.0.1"
-            - name: SSH_BASTION_HOST
-              value: "3.101.89.165"
-            - name: SSH_USER
-              value: ec2-user
-            - name: SSH_PORT
-              value: "22"
+              value: "9090"              
           image: quay.io/falkonry/docker-ssh-tunnel:latest
           imagePullPolicy: Always
           name: kubecost-tunnel
           ports:
-            - containerPort: 9090
+            - containerPort: 9091
               protocol: TCP
           resources:
             limits:
@@ -49,12 +43,12 @@ spec:
             requests:
               memory: 1Gi
           volumeMounts:
-            - mountPath: "/ssh_key"
-              name: ssh-key
+            - mountPath: "/root/.kube"
+              name: kubeconfig
               readOnly: true
       restartPolicy: Always
       volumes:
-        - name: ssh-key
+        - name: kubeconfig
           secret:
             secretName: kubecost-tunnel-secret
             defaultMode: 0600
